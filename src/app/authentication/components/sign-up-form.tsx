@@ -22,6 +22,7 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, "O nome é obrigatório"),
@@ -53,6 +54,7 @@ const SignUpForm = () => {
       },
       {
         onSuccess: () => {
+          toast.success("Conta criada com sucesso!");
           router.push("/dashboard");
         },
       },
