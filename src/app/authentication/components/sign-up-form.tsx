@@ -57,6 +57,14 @@ const SignUpForm = () => {
           toast.success("Conta criada com sucesso!");
           router.push("/dashboard");
         },
+        onError: (ctx) => {
+          console.log(ctx.error);
+          if (ctx.error.code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL") {
+            toast.error("Este email já está em uso. Tente outro.");
+            return;
+          }
+          toast.error("Erro ao criar a conta. Tente novamente.");
+        },
       },
     );
   }
