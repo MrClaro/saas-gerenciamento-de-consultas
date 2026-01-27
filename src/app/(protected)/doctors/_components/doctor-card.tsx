@@ -16,12 +16,14 @@ import UpsertDoctorForm from "./upsert-doctor-form";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { getAvailability } from "../_helpers/availability";
 import { formatCurrencyInCents } from "@/helpers/currenty";
+import { useState } from "react";
 
 interface DoctorCardProps {
   doctor: typeof doctorsTable.$inferInsert;
 }
 
 export const DoctorCard = ({ doctor }: DoctorCardProps) => {
+  const [isOpen, setIsOpen] = useState(false);
   const doctorInitials = doctor.name
     .split(" ")
     .map((n) => n[0])
@@ -60,11 +62,18 @@ export const DoctorCard = ({ doctor }: DoctorCardProps) => {
       </CardContent>
       <Separator />
       <CardFooter>
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">Ver detalhes</Button>
           </DialogTrigger>
-          <UpsertDoctorForm />
+          <UpsertDoctorForm
+            doctor={{
+              ...doctor,
+              availableFromTime: availability.from.format("HH:mm:ss"),
+              availableToTime: availability.to.format("HH:mm:ss"),
+            }}
+            onSuccess={() => setIsOpen(false)}
+          />
         </Dialog>
       </CardFooter>
     </Card>
