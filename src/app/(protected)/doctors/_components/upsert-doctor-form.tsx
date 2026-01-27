@@ -4,6 +4,7 @@ import { NumericFormat } from "react-number-format";
 
 import { useAction } from "next-safe-action/hooks";
 
+import { upsertDoctor } from "@/actions/upsert-doctor";
 import {
   DialogContent,
   DialogDescription,
@@ -29,13 +30,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { doctorsTable } from "@/db/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import z from "zod";
 import { medicalSpecialties } from "../_constants";
-import { upsertDoctor } from "@/actions/upsert-doctor";
-import { toast } from "sonner";
-import { doctorsTable } from "@/db/schema";
 
 const formSchema = z
   .object({

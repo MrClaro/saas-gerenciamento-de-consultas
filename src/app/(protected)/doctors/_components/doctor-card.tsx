@@ -1,4 +1,16 @@
 "use client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -11,12 +23,21 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { doctorsTable } from "@/db/schema";
-import { CalendarIcon, ClockIcon, DollarSignIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  ClockIcon,
+  DollarSignIcon,
+  Trash2Icon,
+  TrashIcon,
+} from "lucide-react";
 import UpsertDoctorForm from "./upsert-doctor-form";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { getAvailability } from "../_helpers/availability";
 import { formatCurrencyInCents } from "@/helpers/currenty";
 import { useState } from "react";
+import { useAction } from "next-safe-action/hooks";
+import { toast } from "sonner";
+import { deleteDoctor } from "@/actions/delete-doctor";
 
 interface DoctorCardProps {
   doctor: typeof doctorsTable.$inferInsert;
@@ -31,6 +52,22 @@ export const DoctorCard = ({ doctor }: DoctorCardProps) => {
     .toUpperCase();
 
   const availability = getAvailability(doctor);
+
+  const deleteDoctorAction = useAction(deleteDoctor, {
+    onSuccess: () => {
+      toast.success("Médico deletado com sucesso");
+    },
+    onError: (error) => {
+      toast.error(
+        `Erro: ${error.error.serverError || "Ocorreu um erro ao deletar o médico"}`,
+      );
+    },
+  });
+
+  const handleDeleteDoctorClick = () => {
+    if (!doctor || !doctor.id) return;
+    deleteDoctorAction.execute({ id: doctor.id });
+  };
 
   return (
     <Card>
@@ -61,7 +98,7 @@ export const DoctorCard = ({ doctor }: DoctorCardProps) => {
         </Badge>
       </CardContent>
       <Separator />
-      <CardFooter>
+      <CardFooter className="flex flex-col gap-2">
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
             <Button className="w-full">Ver detalhes</Button>
@@ -75,6 +112,35 @@ export const DoctorCard = ({ doctor }: DoctorCardProps) => {
             onSuccess={() => setIsOpen(false)}
           />
         </Dialog>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" className="w-full">
+              <TrashIcon />
+              Deletar Médico
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent size="sm">
+            <AlertDialogHeader>
+              <AlertDialogMedia className="bg-destructive/10 text-destructive dark:bg-destructive/20 dark:text-destructive">
+                <Trash2Icon />
+              </AlertDialogMedia>
+              <AlertDialogTitle>Deletar Médico?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Essa ação não pode ser revertida. Essa ação irá deletar o médico
+                e todas as consultas agendadas.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel variant="outline">Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={handleDeleteDoctorClick}
+              >
+                Deletar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardFooter>
     </Card>
   );
