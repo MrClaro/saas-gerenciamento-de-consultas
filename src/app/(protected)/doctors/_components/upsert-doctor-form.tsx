@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 
 import { NumericFormat } from "react-number-format";
 
+import { useAction } from "next-safe-action/hooks";
+
 import {
   DialogContent,
   DialogDescription,
@@ -31,6 +33,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { medicalSpecialties } from "../_constants";
+import { upsertDoctor } from "@/actions/upsert-doctor";
+import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -57,7 +61,11 @@ const formSchema = z
     },
   );
 
-const UpsertDoctorForm = (props: {}) => {
+interface UpsertDoctorFormProps {
+  onSuccess?: () => void;
+}
+
+const UpsertDoctorForm = ({ onSuccess }: UpsertDoctorFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,8 +79,25 @@ const UpsertDoctorForm = (props: {}) => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    console.log(data);
+  const upsertDoctorAction = useAction(upsertDoctor, {
+    onSuccess: (data) => {
+      toast.success("Médico adicionado com sucesso");
+      onSuccess?.();
+    },
+    onError: (error) => {
+      toast.error(
+        `Erro: ${error.error.serverError || "Ocorreu um erro ao adicionar o médico"}`,
+      );
+    },
+  });
+
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    upsertDoctorAction.execute({
+      ...values,
+      availableFromWeekDay: parseInt(values.availableFromWeekDay, 10),
+      availableToWeekDay: parseInt(values.availableToWeekDay, 10),
+      appointmentPriceInCents: values.appointmentPrice * 100,
+    });
   };
 
   return (
@@ -344,7 +369,11 @@ const UpsertDoctorForm = (props: {}) => {
             )}
           />
           <DialogFooter>
-            <Button type="submit">Adicionar</Button>
+            <Button type="submit" disabled={upsertDoctorAction.isPending}>
+              {upsertDoctorAction.isPending
+                ? "Adicionando..."
+                : "Adicionar Médico"}
+            </Button>
           </DialogFooter>
         </form>
       </Form>
