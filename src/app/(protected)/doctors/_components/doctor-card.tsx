@@ -12,6 +12,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import { deleteDoctor } from "@/actions/delete-doctor";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,23 +22,16 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { doctorsTable } from "@/db/schema";
-import {
-  CalendarIcon,
-  ClockIcon,
-  DollarSignIcon,
-  Trash2Icon,
-  TrashIcon,
-} from "lucide-react";
-import UpsertDoctorForm from "./upsert-doctor-form";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-import { getAvailability } from "../_helpers/availability";
 import { formatCurrencyInCents } from "@/helpers/currenty";
-import { useState } from "react";
+import { CalendarIcon, ClockIcon, Trash2Icon, TrashIcon } from "lucide-react";
 import { useAction } from "next-safe-action/hooks";
+import { useState } from "react";
 import { toast } from "sonner";
-import { deleteDoctor } from "@/actions/delete-doctor";
+import { getAvailability } from "../_helpers/availability";
+import UpsertDoctorForm from "./upsert-doctor-form";
 
 interface DoctorCardProps {
   doctor: typeof doctorsTable.$inferInsert;
@@ -104,6 +98,7 @@ export const DoctorCard = ({ doctor }: DoctorCardProps) => {
             <Button className="w-full">Ver detalhes</Button>
           </DialogTrigger>
           <UpsertDoctorForm
+            isOpen={isOpen}
             doctor={{
               ...doctor,
               availableFromTime: availability.from.format("HH:mm:ss"),
