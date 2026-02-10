@@ -14,7 +14,7 @@ const AddPatientButton = () => {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Adicionar Médico
+          Adicionar Paciente
         </Button>
       </DialogTrigger>
       <UpsertPatientForm isOpen={isOpen} onSuccess={() => setIsOpen(false)} />

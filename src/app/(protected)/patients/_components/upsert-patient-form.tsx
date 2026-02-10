@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -83,7 +82,10 @@ const UpsertPatientForm = ({
   });
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
-    upsertPatientAction.execute(values);
+    upsertPatientAction.execute({
+      ...values,
+      id: patient?.id,
+    });
   };
 
   return (
